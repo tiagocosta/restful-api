@@ -1,5 +1,7 @@
 package com.tcs.controller.exception;
 
+import com.tcs.service.exception.BusinessException;
+import com.tcs.service.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,22 +14,22 @@ import java.util.NoSuchElementException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleBusinessException(IllegalArgumentException businessException) {
-        return new ResponseEntity<>(businessException.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<String> handleBusinessException(BusinessException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<String> handleNotFoundException(NoSuchElementException notFoundException) {
-        return new ResponseEntity<>("Resource ID not found", HttpStatus.NOT_FOUND);
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<String> handleNoContentException() {
+        return new ResponseEntity<>("Resource ID not found.", HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Throwable.class)
-    public ResponseEntity<String> handle(Throwable unexpectedException) {
-        var message = "Unexpected server error. See logs.";
-        logger.error(message, unexpectedException);
+    public ResponseEntity<String> handleUnexpectedException(Throwable unexpectedException) {
+        String message = "Unexpected server error.";
+        LOGGER.error(message, unexpectedException);
         return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
